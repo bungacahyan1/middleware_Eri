@@ -36,13 +36,7 @@ client.on('messageCreate', async (message) => {
 
   try {
     const response = await axios.post(FLOWISE_API_URL, {
-      question: query,
-      overrideConfig: {
-        sessionId: "example-session",
-        memoryKey: "example-memory",
-        systemMessagePrompt: "You are a helpful AI assistant.",
-        humanMessagePrompt: query,
-      },
+      question: query
     }, {
       headers: {
         Authorization: `Bearer ${FLOWISE_API_KEY}`,
@@ -53,8 +47,8 @@ client.on('messageCreate', async (message) => {
     const answer = response.data.text || 'Maaf, tidak ada jawaban.';
     message.reply(answer);
   } catch (error) {
-    console.error(error);
-    message.reply('Terjadi kesalahan saat menghubungi AI.');
+    console.error('Axios Error:', error.response ? error.response.data : error.message);
+    message.reply('Terjadi kesalahan saat menghubungi AI. Silakan coba lagi nanti.');
   }
 });
 
