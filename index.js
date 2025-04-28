@@ -19,10 +19,21 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-  if (message.author.bot) return; // Abaikan pesan dari bot
-  if (!message.content.startsWith('!ask')) return; // Gunakan perintah !ask
+  // Abaikan pesan dari bot itu sendiri
+  if (message.author.bot) return;
 
-  const query = message.content.slice(5).trim(); // Ambil teks setelah !ask
+  // Periksa apakah bot di-tag dalam pesan
+  if (!message.mentions.has(client.user)) return;
+
+  // Ambil isi pesan, hapus mention bot dari pesan
+  const query = message.content.replace(/<@!?[0-9]+>/g, '').trim();
+
+  // Jika tidak ada teks setelah mention, berikan pesan default
+  if (!query) {
+    message.reply('Silakan ajukan pertanyaan setelah mention saya! Contoh: <@BotID> Apa itu AI?');
+    return;
+  }
+
   try {
     const response = await axios.post(FLOWISE_API_URL, {
       question: query,
@@ -45,6 +56,14 @@ client.on('messageCreate', async (message) => {
     console.error(error);
     message.reply('Terjadi kesalahan saat menghubungi AI.');
   }
+});
+
+client.on('error', (error) => {
+  console.error('Client error:', error);
+});
+
+client.on('shardError', (error) => {
+  console.error('Shard error:', error);
 });
 
 client.login(DISCORD_TOKEN);
